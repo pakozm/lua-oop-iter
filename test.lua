@@ -9,15 +9,21 @@ local c2,o2,m2 = class("hola2", c)
 
 function m2:__call(n) local obj = c(n) return class.instance(obj, self) end
 function o2:print()
-  print("2")
-  class.call(class.super(self),"print",self)
+  print("I am hola2")
+  class.call(class.super(c2),"print",self)
 end
+
+local c3,o3,m3 = class("hola3", c2)
+
+function m3:__call(n) local obj = c2(n) return class.instance(obj, self) end
 
 t1 = c(10)
 t2 = c2(33)
+t3 = c3(100)
 
 t1:print()
 t2:print()
+t3:print()
 
 print("isa(t1,c) = ", class.isa(t1,c))
 print("isa(t1,c2) = ", class.isa(t1,c2))

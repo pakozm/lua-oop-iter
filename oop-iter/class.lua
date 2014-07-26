@@ -84,10 +84,10 @@ function class.isa(object_instance, base_class_table)
   return _isa
 end
 
--- calls the method of the directly super class
-function class.super(self, methodname, ...)
-  local class_table = assert(class.of(self),
-                             "The given 1st parameter must be an object")
+-- returns the super class of a given class table
+function class.super(class_table, methodname, ...)
+  assert(is_class(class_table),
+         "Needs a class table as 1st parameter")
   return assert( (getmetatable(class_table) or {}).parent,
                  "The given object hasn't a super-class" )
 end
