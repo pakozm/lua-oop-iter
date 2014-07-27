@@ -1,4 +1,4 @@
-Lua OOP-Iter
+Lua OOP-iter
 ============
 
 Lua implementation of object oriented programming with enhanced iterator
