@@ -212,6 +212,14 @@ function class.is_derived(obj)
   return getmetatable((getmetatable(obj) or { __index={} }).__index) ~= nil
 end
 
+-- Returns true/false if the given Lua value is a class table.
+--
+-- @param t - A Lua value.
+-- @return boolean
+function class.is_class(t)
+  return has_class_instance_index_metamethod(t) ~= nil
+end
+
 -- TODO: reimplement this function
 --
 -- makes a wrapper around an object, delegating the function calls to the given

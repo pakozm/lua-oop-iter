@@ -220,7 +220,11 @@ if the 1st parameter is not a class table. Be careful, several metamethods
 implement OOP, overwritten them will produce unexpected errors. The call will
 throw an error if you try to overwrite any of them. However, `__tostring`
 metamethod is also defined but it is totally safe to overwrite it.
- 
+
+#### boolean = class.is_class(v)
+
+Returns true/false if the given Lua value is a class table.
+
 #### boolean = class.is_derived(object)
 
 Returns true/false if the given instance object is an instance of a derived
