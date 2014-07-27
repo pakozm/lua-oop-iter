@@ -102,8 +102,7 @@ function class.find(class_name) return class_tables_list[class_name] end
 -- @param base_class_table - A class table.
 -- @return boolean
 function class.is_a(object_instance, base_class_table)
-  assert(class.of(object_instance),
-         "Needs an object as 1st parameter")
+  if not class.of(object_instance) then return false end
   assert(has_metainstance(base_class_table),
          "Needs a class table as 2nd parameter")
   local base_class_meta = (base_class_table.meta_instance or {}).__index
