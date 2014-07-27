@@ -30,7 +30,37 @@ Class module
 
 See
 [test-class.lua](https://github.com/pakozm/lua-oop-iter/blob/master/test-class.lua)
-file for an example of this module.
+file for an example of this module. It can be executed from a terminal:
+
+```
+$ lua test-class.lua
+10
+I am myClass2
+33
+33
+I am myClass2
+100
+100
+is_a(t1,myClass1) = 	true
+is_a(t1,myClass2) = 	false
+is_a(t1,myClass3) = 	false
+is_a(t2,myClass1) = 	true
+is_a(t2,myClass2) = 	true
+is_a(t2,myClass3) = 	false
+is_a(t3,myClass1) = 	true
+is_a(t3,myClass2) = 	true
+is_a(t3,myClass3) = 	true
+of(t1) = 	class myClass1 class
+of(t2) = 	class myClass2 class
+of(t3) = 	class myClass3 class
+t2.ext = 	120
+is_derived(t1) = 	false
+is_derived(t2) = 	true
+is_derived(t2) = 	true
+I am myClass1 destructor: instance of myClass3 100
+I am myClass1 destructor: instance of myClass2 33
+I am myClass1 destructor: instance of myClass1 10
+```
 
 ### Description 
 
