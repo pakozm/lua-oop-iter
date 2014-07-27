@@ -49,7 +49,7 @@ end
 -- Detect if APRIL-ANN is available.
 local type = type
 local aprilann_available = (aprilann ~= nil)
-if aprilann_available then type = luatype end
+if aprilann_available then type = luatype or type end
 
 -- Given two object meta_instance, sets the second as parent of the first.
 local function set_parent(child, parent)
