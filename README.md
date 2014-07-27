@@ -72,7 +72,7 @@ allow to store it into a weak table in order to retrieve the class by its name
 in any moment. A class is defined by doing:
 
 ```Lua
-class_table, methods_table = class('myClassName', parent_class_table)
+class_table, methods_table = class('myClassName'[, parent_class_table[, class_table]])
 ```
   
 Two tables are returned as result of this call, the `class_table` which allows to
@@ -163,13 +163,15 @@ Destructors are called following the hierarchy, from child to parent class.
   
 The following public functions are available:
 
-#### object  = class(name, parent_class)
+#### object  = class(name[, parent_class[, class_table]])
 
 Creates a class table with a given class_name. It receives an optional parent
 class to implement simple heritance. It returns the class table; another table
 which will contain the methods of the object. Constructor and destructor methods
 will be declared into the class table as `class_name:constructor(...)` and
-`class_name:destructor()`.
+`class_name:destructor()`. Additionally, a third optional argument is given,
+which allows to give a predefined class_table, useful is you want to make
+global instead of local variables.
 
 #### boolean = class.is_a(object, class_table)
 

@@ -265,12 +265,16 @@ end
 -- class to implement simple heritance. It returns the class table; another
 -- table which will contain the methods of the object. Constructor and
 -- destructor methods will be declared into the class table as
--- class_name:constructor(...) and class_name:destructor().
-local class_call_metamethod = function(self, class_name, parentclass)
-  local class_table = {
-    constructor = function() end,
-    destructor = function() end,
-  }
+-- class_name:constructor(...) and class_name:destructor(). Additionally, a
+-- third optional argument is given, which allows to give a predefined
+-- class_table, useful is you want to make global instead of local variables.
+local class_call_metamethod = function(self, class_name, parentclass, class_table)
+  local class_table = class_table or {}
+  assert(not class_table.constructor and not class_table.destructor and not class_table.meta_instance,
+         "3rd argument has a constructor, destructor or meta_instance field")
+  class_table.constructor = function() end
+  class_table.destructor  = function() end
+  --
   register_class_table(class_table, class_name)
   -- local class_table = get_table_from_dotted_string(class_name, true)
   -- if type(parentclass) == "string" then
