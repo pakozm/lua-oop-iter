@@ -23,6 +23,8 @@
 ]]
 
 -- DOCUMENTATION AT README.md
+-- https://github.com/pakozm/lua-oop-iter/blob/master/README.md class module
+-- section.
 
 -----------------------------
 -- class module definition --
@@ -309,5 +311,8 @@ local class_call_metamethod = function(self, class_name, parentclass)
   return class_table, class_table.meta_instance.__index
 end
 setmetatable(class, { __call = class_call_metamethod })
+
+-- In APRIL-ANN this module is defined at global environment
+if aprilann_available then _G.class = class end
 
 return class
