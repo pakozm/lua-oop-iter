@@ -130,6 +130,35 @@ hierarchy of tables:
   }
 ```
 
+#### Single hieritance
+
+Single hieritance has been implemented by defining metatables in `__index`
+metamethod. The use of this feature is very simple, assuming you have a class
+table `myClass1`, you can define the class `myClass2` as a child of previous one:
+
+```Lua
+> -- parent class
+> myClass1,myClass1Methods = class("myClass1")
+> myClass1:constructor(...) whatever stuff here end
+> -- derived or child class
+> myClass2,myClass2Methods = class("myClass2", myClass1)
+> myClass2:constructor(...) myClass1.constructor(self, ...) more stuff here end
+```
+
+Note that parent constructor call is not made by default, and
+`myClass2:constructor` calls explicitly `myClass1.constructor` function passing
+the `self` reference. In this way, whatever construction stuff done in
+`myClass1` will be done for `myClass2`. It is not mandatory to do this, but in
+many cases it will be helpful. However, you can build `myClass2` instances in
+whatever way you want if the result is compatible with the methods inherited
+from `myClass1`.
+
+`myClass2Methods` can overwrite or not methods defined at `myClass1Methods`. Non
+overwritten methods will be delegated calling `myClass1` implementation, so be
+careful to ensure both objects are compatible.
+
+Destructors are called following the hierarchy, from child to parent class.
+
 ### Reference
   
 The following public functions are available:

@@ -53,9 +53,9 @@ print("is_a(t3,myClass1) = ", class.is_a(t3, myClass1))
 print("is_a(t3,myClass2) = ", class.is_a(t3, myClass2))
 print("is_a(t3,myClass3) = ", class.is_a(t3, myClass3))
 
-assert(class.of(t1), myClass1)
-assert(class.of(t2), myClass2)
-assert(class.of(t3), myClass3)
+assert(class.of(t1) == myClass1)
+assert(class.of(t2) == myClass2)
+assert(class.of(t3) == myClass3)
 
 print("of(t1) = ", class.of(t1))
 print("of(t2) = ", class.of(t2))

@@ -313,6 +313,9 @@ end
 setmetatable(class, { __call = class_call_metamethod })
 
 -- In APRIL-ANN this module is defined at global environment
-if aprilann_available then _G.class = class end
+if aprilann_available then
+  _G.class = class
+  _G.class_instance = class_instance
+end
 
 return class
