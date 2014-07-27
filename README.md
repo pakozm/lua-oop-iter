@@ -28,7 +28,9 @@ path directories, you can do:
 Class module
 ------------
 
-See `test-class.lua` file for an example.
+See
+[test-class.lua](https://github.com/pakozm/lua-oop-iter/blob/master/test-class.lua)
+file for an example of this module.
 
 ### Description 
 
