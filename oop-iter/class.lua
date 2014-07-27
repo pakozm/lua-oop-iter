@@ -48,7 +48,7 @@ end
 
 -- Detect if APRIL-ANN is available.
 local type = type
-local aprilann_available = pcall(require, "aprilann") or pcall(require, "aprilanndebug")
+local aprilann_available = (aprilann ~= nil)
 if aprilann_available then type = luatype end
 
 -- Given two object meta_instance, sets the second as parent of the first.
