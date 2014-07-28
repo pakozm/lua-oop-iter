@@ -138,9 +138,9 @@ and `class_table.destructor` fields. `class_table.meta_instance` table can be
 safety modified by calling to `class.extend_metamethod(...)`, or writing
 non-safety manual changes into `class_table.meta_instance`.
 
-#### Single hieritance
+#### Simple inheritance
 
-Single hieritance has been implemented by defining a metatable for the
+Simple inheritance has been implemented by defining a metatable for the
 `class_table.meta_instance.__index` table. Having a class table `myClass1`, you
 can define the class `myClass2` as a child of previous one by writing:
 
