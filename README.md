@@ -244,13 +244,19 @@ true
   
 #### class_table = class.of(object)
 
-Returns the class table of the given object instance.
+Returns the class table of the given object instance. In case the given
+parameter is a Lua value but not an object, it returns `nil`. So, this method
+can be used also to ask if a Lua value is or not an object.
 
 ```Lua
 > cls1,cls1_methods = class("cls1")
 > o = cls1()
 > = ( class.of(o) == cls1 )
 true
+> = class.of( {} )
+nil
+> = class.of( 5 )
+nil
 ```
 
 #### class.extend(class_table, key, value)
