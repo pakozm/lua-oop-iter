@@ -175,7 +175,7 @@ The following public functions are available:
 #### object  = class(name[, parent_class[, class_table]])
 
 Creates a class table with a given class_name. It receives an optional parent
-class to implement simple heritance. It returns the class table; another table
+class to implement simple inheritance. It returns the class table; another table
 which will contain the methods of the object. Constructor and destructor methods
 will be declared into the class table as `class_name:constructor(...)` and
 `class_name:destructor()`. Additionally, a third optional argument is given,

@@ -274,7 +274,7 @@ local function wrapper(obj,wrapper)
 end
 
 -- Creates a class table with a given class_name. It receives an optional parent
--- class to implement simple heritance. It returns the class table; another
+-- class to implement simple inheritance. It returns the class table; another
 -- table which will contain the methods of the object. Constructor and
 -- destructor methods will be declared into the class table as
 -- class_name:constructor(...) and class_name:destructor(). Additionally, a
