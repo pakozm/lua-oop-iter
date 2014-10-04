@@ -21,10 +21,12 @@
 ]]
 
 local class = require "oop-iter.class"
+local iterator = require "oop-iter.iterator"
 local oopiter = {
   _NAME = "lua-oop-iter",
-  _VERSION = "0.1",
+  _VERSION = "0.2",
   class = class,
+  iterator = iterator,
 }
 
 return oopiter
