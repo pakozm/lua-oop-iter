@@ -44,10 +44,14 @@ local unpack = table.unpack
 local wrap = coroutine.wrap
 local yield = coroutine.yield
 
-local function filter(func, f, s, v)
+-- Filters a Lua iterator function output using a given predicate function. The
+-- predicate returns true when a value must be taken, false when it must be
+-- removed. The predicate function is called as f(...) where ... are the values
+-- returned by the iterator function.
+local function filter(predicate_func, f, s, v)
   return function(s, v)
     local tmp = pack(f(s, v))
-    while tmp[1] ~= nil and not func(unpack(tmp)) do
+    while tmp[1] ~= nil and not predicate_func(unpack(tmp)) do
       v = tmp[1]
       tmp = pack(f(s, v))
     end
@@ -55,8 +59,13 @@ local function filter(func, f, s, v)
   end, s, v
 end
 
--- FROM: http://www.corsix.org/content/mapping-and-lua-iterators
-local function map(func, f, s, v)
+-- Iterable map function, receives a map function and a Lua iterator and returns
+-- another Lua iterator function. The map function is called as f(...) where
+-- ... are the values returned by the iterator function. Multiple results are
+-- possible from one map call using coroutine.yield function.
+--
+-- @note FROM: http://www.corsix.org/content/mapping-and-lua-iterators
+local function map(map_func, f, s, v)
   local done
   local function maybeyield(...)
     if ... ~= nil then
@@ -66,7 +75,7 @@ local function map(func, f, s, v)
   local function domap(...)
     v = ...
     if v ~= nil then
-      return maybeyield(func(...))
+      return maybeyield(map_func(...))
     else
       done = true
     end
@@ -80,23 +89,30 @@ local function map(func, f, s, v)
   end), s, v
 end
 
-local function reduce(func, initial_value, f, s, v)
+-- Reduce function, receives a reduce function, a reduce initial value, and a
+-- Lua iterator, and returns the computation result of the reduction. The
+-- reduce function is call as f(acc,...) where acc is the reduced (accumulated)
+-- computation, and ... are the values returned by the iterator function.
+local function reduce(reduce_func, initial_value, f, s, v)
   assert(initial_value ~= nil,
 	 "reduce: needs an initial_value as second argument")
   local accum = initial_value
   local tmp = pack(f(s, v))
   while tmp[1] ~= nil do
-    accum = func(accum, unpack(tmp))
+    accum = reduce_func(accum, unpack(tmp))
     tmp = pack(f(s, tmp[1]))
   end
   return accum
 end
 
-local function apply(func, f, s, v)
-  if not func then func = function() end end
+-- Apply function, receives a function and a Lua iterator, and calls the apply
+-- function with every element of the iterator. The apply function is called as
+-- f(...) where ... are the values returned by the iterator function.
+local function apply(apply_func, f, s, v)
+  if not apply_func then apply_func = function() end end
   local tmp = pack(f(s,v))
   while tmp[1] ~= nil do
-    func(unpack(tmp))
+    apply_func(unpack(tmp))
     tmp = pack(f(s,tmp[1]))
   end
 end
@@ -105,36 +121,50 @@ end
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 
+-- Constructor of class iterator. It is a wrapper around a Lua iterator
+-- function, which allow to keep the iterator state, allowing to write easy
+-- functional operations (map, reduce, filter, ...).
 function iterator:constructor(f, s, v)
   self.f,self.s,self.v = f,s,v
 end
 
+-- Returns the underlying Lua iterator.
 function iterator_methods:get() return self.f,self.s,self.v end
 
+-- Performs one iterator step, and returns its result.
 function iterator_methods:step()
   local tmp = pack( self.f(self.s, self.v) )
   self.v = tmp[1]
   return unpack(tmp)
 end
 
+-- Equivalent to step() method, allowing to use iterator objects as Lua
+-- iterators in generic for loops.
 function iterator.meta_instance:__call() return self:step() end
 
+-- Map method, a wrapper around map function. Multiple results are possible
+-- from one map call using coroutine.yield function.
 function iterator_methods:map(func)
   return iterator(map(func, self:get()))
 end
 
+-- Filter method, a wrapper around filter function.
 function iterator_methods:filter(func)
   return iterator(filter(func, self:get()))
 end
 
+-- Apply method, a wrapper around apply function.
 function iterator_methods:apply(func)
   apply(func, self:get())
 end
 
+-- Reduce method, a wrapper around reduce function.
 function iterator_methods:reduce(func, initial_value)
   return reduce(func, initial_value, self:get())
 end
 
+-- Enumerate method, returns another iterator object which appends as a first
+-- element of every iteration a enumeration number.
 function iterator_methods:enumerate()
   local id = 0
   return self:map(function(...)
@@ -143,6 +173,9 @@ function iterator_methods:enumerate()
   end)
 end
 
+-- Calls a function for every iteration value. The function is a name, and this
+-- name must be declared in every iteration value (as table keys, or in its
+-- metatable).
 function iterator_methods:call(funcname, ...)
   local func_args = pack(...)
   return self:map(function(...)
@@ -156,6 +189,8 @@ function iterator_methods:call(funcname, ...)
   end)
 end
 
+-- Performs a nested iteration over every result. It receives a Lua function
+-- which returns an iterator (as ipairs, pairs, ...)
 function iterator_methods:iterate(iterator_func)
   return self:map(function(...)
       local f,s,v = iterator_func(...)
@@ -167,6 +202,8 @@ function iterator_methods:iterate(iterator_func)
   end)
 end
 
+-- Concats the iterator results using sep1 for inter-iteration elements, and
+-- sep2 for intra-iteration calls.
 function iterator_methods:concat(sep1,sep2)
   local sep1,sep2 = sep1 or "",sep2 or sep1 or ""
   local t = {}
@@ -177,6 +214,8 @@ function iterator_methods:concat(sep1,sep2)
   return concat(t, sep2)
 end
 
+-- Indexes iteration result by a given set of indices. It assumes that all
+-- the elements in the iterator result are tables.
 function iterator_methods:field(...)
   local f,s,v = self:get()
   local arg   = pack(...)
@@ -195,6 +234,7 @@ function iterator_methods:field(...)
     s,v)
 end
 
+-- Selects an iteration result by a given set of number indices.
 function iterator_methods:select(...)
   local f,s,v = self:get()
   local arg   = pack(...)
@@ -210,6 +250,9 @@ function iterator_methods:select(...)
     s,v)
 end
 
+-- Stores the iteration into a table. If every iteration has more than one
+-- result, the first element will be used as key, otherwise, an enumerated
+-- key will be used.
 function iterator_methods:table()
   local t = {}
   local idx = 1
