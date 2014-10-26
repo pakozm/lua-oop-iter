@@ -48,9 +48,9 @@ end
 
 for k,v in iterator{1,2,3} do assert(k==v) end
 
-for v in iterator.range(1,100):head() do assert(v == 1) end
+assert( iterator.range(1,100):head() == 1)
 
-for v in iterator.range(1,100):nth(30) do assert(v == 30) end
+assert( iterator.range(1,100):nth(30) == 30)
 
 for a,b in iterator.zip( iterator.range(2,100),
                          iterator.range(1,100):tail() ) do
