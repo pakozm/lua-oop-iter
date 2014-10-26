@@ -46,4 +46,43 @@ for v in iterator(ipairs{1,2,3,4,5,6,7}):filter(function(key,value) return value
   idx=idx+1
 end
 
-for k,v in iterator(ipairs{1,2,3}) do assert(k==v) end
+for k,v in iterator{1,2,3} do assert(k==v) end
+
+for v in iterator.range(1,100):head() do assert(v == 1) end
+
+for v in iterator.range(1,100):nth(30) do assert(v == 30) end
+
+for a,b in iterator.zip( iterator.range(2,100),
+                         iterator.range(1,100):tail() ) do
+  assert(a == b)
+end
+
+for k,v in iterator.duplicate(100):take(10):enumerate() do
+  assert(k>=1 and k<=10 and v==100)
+end
+
+for k,v in iterator.tabulate(function(x) return 2*x + 1 end):take(10):enumerate() do
+  assert(v == (2*(k-1) + 1))
+end
+
+for k,v in iterator.tabulate(function(x) return 2*x + 1 end):drop(10):take(10):enumerate() do
+  assert(v == (2*(k+9) + 1))
+end
+
+for a,b in iterator.zip(iterator.range(10):split(function(x) return x < 5 end)) do
+  assert( (b-a) == 4 )
+end
+
+assert(iterator.range(11,20):index(15) == 5)
+
+for k in iterator{1,2,3,4,5,1,2,3,4,5,1,2,3,4,5}:select(2):indices(3) do
+  assert(k == 3 or k == 8 or k == 13)
+end
+
+for line in iterator{ "one", "two", "one_two", "three", "one_four" }:select(2):grep("^one_") do
+  assert(line:match("^one"))
+end
+
+assert( iterator{1,2,3,4,10,2,4,1}:select(2):max() == 10)
+
+assert( iterator{1,2,3,4,10,2,4,1}:select(2):min() == 1)
