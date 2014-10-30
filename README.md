@@ -400,3 +400,548 @@ stack traceback:
 > = ( cls1 == second_cls1 )
 false
 ```
+
+Iterator module
+---------------
+
+See
+[test-iterator.lua](https://github.com/pakozm/lua-oop-iter/blob/master/test-iterator.lua)
+file for an example (unit tests) of this module.
+
+Another interesting functional library is
+[Lua Functional Library](http://rtsisyk.github.io/luafun/index.html). This
+documentation and some of our API has been inspired by it.
+
+### Description 
+
+The iterator module implements basic functional programming extensions for Lua.
+It is used in [APRIL-ANN toolkit](https://github.com/pakozm/april-ann), but it
+has been deployed independently of APRIL-ANN to allow the Lua community to use
+it. Iterators in Lua are instantiated by three parameters, where the last two
+are optional. The first parameter is an iterator function, and it is the most
+important. The other two are necessary if you want to implement **pure
+functional** iterators, putting the iterator function state outside of the
+function, allowing to make copies of the iterator and more sophisticated stuff.
+
+In its basis, the iterator module allows to do some things like:
+
+```Lua
+> iterator{ 4, 3, 2, 1 }:apply(print)
+1	4
+2	3
+3	2
+4	1
+> iterator{ a=1, b=2, c=3 }:apply(print)
+a	1
+b	2
+c	3
+> iterator.range(10):apply(print)
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+> iterator.zip(iterator.range(21,30), iterator{10,9,8,7,6,5,4,3,2,1}):apply(print)
+21	1	10
+22	2	9
+23	3	8
+24	4	7
+25	5	6
+26	6	5
+27	7	4
+28	8	3
+29	9	2
+30	10	1
+```
+
+The iterator is a class which captures the three iterator parameters and allow
+to perform multiple operations on it. Every operation returns a shallow copy of
+the iterator or a result, but it can be cloned if necessary. Cloning iterators
+doesn't work if it is not a **pure functional** iterator.
+
+### Generators reference
+
+#### Constructor: iterator(f,s,v) or iterator(t)
+
+The constructor of the class receives a Lua iterator tripplete or a table. When
+a Lua iterator tripplete is given, it is captured and stored internally in the
+constructed object:
+
+```Lua
+> -- the following is a different implementation of ipairs iterator
+> it = iterator(function(s,i) return s[i+1] and i+1,s[i+1] end,{4,3,2,1},0)
+> it:apply(print)
+1	4
+2	3
+3	2
+4	1
+> -- you can use directly the ipairs or pairs iterators
+> iterator(pairs{ a=4, b=1, c=2, e=10 }):apply(print)
+b	1
+a	4
+e	10
+c	2
+```
+
+If a table is given, constructor automatically decides to use `ipairs()` or
+`pairs()` function depending in the value of `#t == 0`. If `true`, it is
+supposed to be a pure dictionary table, and it will be traversed using
+`pairs()`. If `false`, it is supposed to be a pure array table, and it will be
+traversed using `ipairs()`. In any case, the keys will be removed from results
+list.
+
+```Lua
+> iterator{ 4, 3, 2, 1 }:apply(print)
+4
+3
+2
+1
+> iterator{ a=4, b=1, c=2, e=10 }:apply(print)
+1
+4
+10
+2
+```
+
+**Warning**, if you give the constructor a mixed table (with array part and
+  dictionary part) it will be traversed using `ipairs()` method, ignoring the
+  dictionary part.
+
+#### iterator.range([start],stop,[step])
+
+Returns an iterator instance which generates a sequence of numbers using the
+given `start`, `stop` and `step` parameters. By default `start=1` and `step=1`.
+
+```Lua
+> iterator.range(6):apply(print)
+1
+2
+3
+4
+5
+6
+> iterator.range(31,40,2):apply(print)
+31
+33
+35
+37
+39
+```
+
+#### iterator.duplicate(...)
+
+Returns an **infinite** iterator which duplicates its given variadic list of
+arguments in every iterator result.
+
+```Lua
+> iterator.duplicate("a",4,"b"):take(4):apply(print)
+a	4	b
+a	4	b
+a	4	b
+a	4	b
+```
+
+#### iterator.tabulate(func)
+
+Returns an **infinite** iterator which calls the given function with values
+`f(0), f(1), ...`.
+
+```Lua
+> iterator.tabulate(function(x) return 2*x+1 end):take(6):apply(print)
+1
+3
+5
+7
+9
+11
+```
+
+#### iterator.ones()
+
+Returns an **inifite** list of ones.
+
+#### iterator.zeros()
+
+Returns an **inifite** list of zeros.
+
+#### iterator.zip(i1, i2, ..., iN)
+
+Returns an iterator which concatenates the results of its N given iterators.
+All the N arguments must be instances of iterator class. The iterator length
+will be the minimum length of the N given iterators.
+
+```Lua
+> iterator.zip( iterator.duplicate('a'), iterator.range(10) ):apply(print)
+a	1
+a	2
+a	3
+a	4
+a	5
+a	6
+a	7
+a	8
+a	9
+a	10
+```
+
+### Slicing
+
+#### ... = it:nth(k)
+
+Returns the value of the iterator at the `k` iteration. The iterator will be
+placed at the iteration `k+1`.
+
+```Lua
+> = iterator.range(10):nth(4)
+4
+```
+
+#### ... = it:head()
+
+Equivalent to `it:nth(1)`.
+
+#### it = it:tail()
+
+Skips the head of the iterator and returns itself:
+
+```Lua
+function iterator_methods:tail()
+  self()
+  return self
+end
+```
+
+#### it = it:take(number or predicate)
+
+If given a number `n`, returns an iterator which processes the first `n`
+iterations, ignoring the rest.
+
+```Lua
+> iterator.ones():take(4):apply(print)
+1
+1
+1
+1
+```
+
+If given a predicate function `f`, returns an iterator to the longest prefix
+which satisfies the given predicate function.
+
+```Lua
+> iterator.range(10):take(function(x) return x < 4 end):apply(print)
+1
+2
+3
+```
+
+#### it = it:drop(number or predicate)
+
+If given a number `n`, returns an iterator which drops the first `n` iterations.
+
+```Lua
+> iterator.range(10):drop(3):apply(print)
+4
+5
+6
+7
+8
+9
+10
+```
+
+If given a predicate function `f`, returns an iterator which ignores the longest
+prefix which satisfies the given predicate function.
+
+```Lua
+> iterator.range(10):drop(function(x) return x < 4 end):apply(print)
+4
+5
+6
+7
+8
+9
+10
+```
+
+#### left,right = it:split(n)
+
+Returns two iterators, the first taken the first `n` iterations, and the
+second one dropping the first `n` iterations. This method requires
+**pure functional** iterators to work properly.
+
+```Lua
+> left,right = iterator{1, 2, 3, 4, 5}:split(2)
+> left:apply(print)
+1
+2
+> right:apply(print)
+3
+4
+5
+```
+
+### Selection
+
+#### it = it:select(n1, n2, ...)
+
+Returns an iterator which filters the number of returned values selection the
+given positions. It is useful to ignore keys in `ipairs()` or `pairs()`
+iterators.
+
+```Lua
+> iterator(ipairs{ 4, 3, 2, 1 }):apply(print)
+1	4
+2	3
+3	2
+4	1
+> iterator(ipairs{ 4, 3, 2, 1 }):select(1):apply(print)
+1
+2
+3
+4
+> iterator(ipairs{ 4, 3, 2, 1 }):select(2):apply(print)
+4
+3
+2
+1
+```
+
+#### it = it:field(k1, k2, ...)
+
+Returns an iterator which filters the returned values by accessing to the given
+variadic list of keys. It needs that all returned values to be tables.
+
+```Lua
+> iterator{ {a=1, b=2, c=3}, {a=4, b=5, c=6} }:field('a','c'):apply(print)
+1	3
+4	6
+```
+
+### Indexing
+
+#### number = it:index(...)
+
+Returns the first iteration number where the iterator values are equals to
+the given variadic list of arguments.
+
+```Lua
+> = iterator.zip( iterator.range(10), iterator.range(11,20) ):index(2,12)
+2
+```
+
+#### it = it:indices(...)
+
+Returns an iterator to the positions of the caller iterator which are equals
+to the given variadic list of arguments.
+
+```Lua
+= iterator{ 1, 2, 4, 2, 5, 4, 2, 6 }:indices(2):apply(print)
+2
+4
+7
+```
+
+### Filtering
+
+#### it = it:filter(predicate)
+
+Returns a new iterator to those elements which satisfy the given predicate
+function.
+
+```Lua
+> iterator.range(40):filter(function(x) return x>20 and x<25 end):apply(print)
+21
+22
+23
+24
+```
+
+#### it = it:grep(regexp)
+
+Returns a new iterator to those elements which satisfy the given Lua regular
+expression `regexp`. Only valid for iterators which return *one string value*
+per iteration.
+
+```Lua
+> iterator{ 'first', 'second', 'fish', 'find', 'third' }:grep('fi'):apply(print)
+first
+fish
+find
+```
+
+#### left,right = it:partition(predicate)
+
+Returns two iterators, `left` with the elements which satisfy the given
+repdicate, `right` with the elements which not satisfy the predicate.
+This method needs **pure functional** iterators to work properly.
+
+```Lua
+> iterator.zip( iterator.range(20):partition(function(x) return x%2 == 1 end) ):apply(print)
+1	2
+3	4
+5	6
+7	8
+9	10
+11	12
+13	14
+15	16
+17	18
+19	20
+```
+
+### Reductions
+
+#### value = it:reduce(function(acc,...) CODE end, start)
+
+Computes a reduction given the function an accumulator `acc` (first argument),
+and the list of results produced by the iterator. The `start` argument is used
+to initialize `acc=start`, so an empty iterator will return `start` as value.
+
+```Lua
+> = iterator.range(20):reduce(function(acc,x) return acc+x end, 0)
+210
+```
+
+#### n = it:size()
+
+Returns the length of the iterator.
+
+#### number = it:sum()
+
+Returns the sum of all the elements. The iterator must return one number every
+time it is called.
+
+#### number = it:prod()
+
+Returns the product of all the elements. The iterator must return one number
+every time it is called.
+
+#### number = it:max()
+
+Returns the maximum of all elements. The iterator must return one number every
+time it is called.
+
+#### number = it:min()
+
+Returns the minimum of all elements. The iterator must return one number every
+time it is called.
+
+#### t = it:table()
+
+Returns a table with all the iterator results. The returned table will be
+enumerated from 1 to `it:size()` if only one value is returned in every
+iteration, otherwise, the first result of every iteration will be taken as key
+of the table.
+
+```Lua
+> = table.concat(iterator.range(20):table(), " ")
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+```
+
+#### str = it:concat( [sep1 [, sep2] ] )
+
+Returns a string with the concatenation of all the elements. `sep1=sep2=""` by
+default. If `sep1` is given, but not `sep2`, therfore `sep2=sep1`. Elements
+in every iteration will be separated by `sep1`, elements between iterations
+will be separated by `sep2`.
+
+```Lua
+> = iterator.zip( iterator.duplicate('a'), iterator.range(10) ):concat()
+a1a2a3a4a5a6a7a8a9a10
+> = iterator.zip( iterator.duplicate('a'), iterator.range(10) ):concat(" ")
+a 1 a 2 a 3 a 4 a 5 a 6 a 7 a 8 a 9 a 10
+> = iterator.zip( iterator.duplicate('a'), iterator.range(10) ):concat(" ", "\n")
+a 1
+a 2
+a 3
+a 4
+a 5
+a 6
+a 7
+a 8
+a 9
+a 10
+```
+
+### Transformations
+
+#### it = it:map(func)
+
+Returns an iterator where all the elements are being mapped with the result
+returned by `func`.
+
+```Lua
+> iterator.range(10):map(function(x) return 2*x end):apply(print)
+2
+4
+6
+8
+10
+12
+14
+16
+18
+20
+```
+
+#### it = it:enumerate()
+
+Returns an iterator where all the elements had been enumerated with a new first
+column of data, starting at 1.
+
+```Lua
+> iterator.zip( iterator{"first","second","third"}, iterator{"a","b","c"} ):enumerate():apply(print)
+1	first	a
+2	second	b
+3	third	c
+```
+
+### Other
+
+#### it:apply(function)
+
+Applies the given function to all iterator elements.
+
+```Lua
+> iterator.range(10):apply(function(x) print(2*x) end)
+2
+4
+6
+8
+10
+12
+14
+16
+18
+20
+```
+
+#### ... = it:step()
+
+Performs one iteration step, returning result values list.
+
+#### f,s,v = it:get()
+
+Returns the underlying Lua iterator tripplete.
+
+#### for a,b,c,... in it do CODE end
+
+It is possible to use this iterators as standard Lua function iterators in
+generic Lua for loops.
+
+```Lua
+> for v in iterator{1,2,3} do print(2*v) end
+2
+4
+6
+```
+
+#### other_it = it:clone()
+
+Returns a clone (deep copy) of the caller iterator. To work properly,
+this method needs **pure functional** iterators.

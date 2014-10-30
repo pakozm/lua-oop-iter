@@ -46,7 +46,7 @@ for v in iterator(ipairs{1,2,3,4,5,6,7}):filter(function(key,value) return value
   idx=idx+1
 end
 
-for k,v in iterator{1,2,3} do assert(k==v) end
+for k,v in iterator{1,2,3}:enumerate() do assert(k==v) end
 
 assert( iterator.range(1,100):head() == 1)
 
@@ -75,14 +75,14 @@ end
 
 assert(iterator.range(11,20):index(15) == 5)
 
-for k in iterator{1,2,3,4,5,1,2,3,4,5,1,2,3,4,5}:select(2):indices(3) do
+for k in iterator{1,2,3,4,5,1,2,3,4,5,1,2,3,4,5}:indices(3) do
   assert(k == 3 or k == 8 or k == 13)
 end
 
-for line in iterator{ "one", "two", "one_two", "three", "one_four" }:select(2):grep("^one_") do
+for line in iterator{ "one", "two", "one_two", "three", "one_four" }:grep("^one_") do
   assert(line:match("^one"))
 end
 
-assert( iterator{1,2,3,4,10,2,4,1}:select(2):max() == 10)
+assert( iterator{1,2,3,4,10,2,4,1}:max() == 10)
 
-assert( iterator{1,2,3,4,10,2,4,1}:select(2):min() == 1)
+assert( iterator{1,2,3,4,10,2,4,1}:min() == 1)
