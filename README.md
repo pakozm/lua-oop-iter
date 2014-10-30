@@ -427,14 +427,14 @@ In its basis, the iterator module allows to do some things like:
 
 ```Lua
 > iterator{ 4, 3, 2, 1 }:apply(print)
-1	4
-2	3
-3	2
-4	1
+4
+3
+2
+1
 > iterator{ a=1, b=2, c=3 }:apply(print)
-a	1
-b	2
-c	3
+1
+2
+3
 > iterator.range(10):apply(print)
 1
 2
@@ -447,16 +447,16 @@ c	3
 9
 10
 > iterator.zip(iterator.range(21,30), iterator{10,9,8,7,6,5,4,3,2,1}):apply(print)
-21	1	10
-22	2	9
-23	3	8
-24	4	7
-25	5	6
-26	6	5
-27	7	4
-28	8	3
-29	9	2
-30	10	1
+21	10
+22	9
+23	8
+24	7
+25	6
+26	5
+27	4
+28	3
+29	2
+30	1
 ```
 
 The iterator is a class which captures the three iterator parameters and allow
