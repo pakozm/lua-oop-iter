@@ -57,6 +57,7 @@ local function clone_function(func)
       if not name then break end
       -- avoid global environment upvalue
       if name ~= "_ENV" then
+        -- TODO: implement cone (deep copy) of tables
         if type(value) == "function" then value = clone_function(value) end
         debug.setupvalue(func_clone, i, value)
       end

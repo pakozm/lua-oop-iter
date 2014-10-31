@@ -944,4 +944,5 @@ generic Lua for loops.
 #### other_it = it:clone()
 
 Returns a clone (deep copy) of the caller iterator. To work properly,
-this method needs **pure functional** iterators.
+this method needs **pure functional** iterators. Be careful, this method makes
+a copy of the Lua iterator functions and its upvalues.
