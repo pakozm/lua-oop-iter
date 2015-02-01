@@ -35,13 +35,18 @@ useful functional extensions.
 
 `function = oopiter.bind(func, v1, v2, ..., vn)`
 
-Allow to curry any Lua function, as long as it receives positional arguments.
-Thid `bind` function receives a function as first argument and a following
-variadic list with `n` arguments. Any of this `n` arguments can be `nil`.
+Allow to bind any Lua function arguments to constant values, as long as the
+function receives positional arguments. Bind function receives a function as
+first argument and a variadic list with `n` arguments, being possible the later
+list to contain as may `nil` values as necessary. It is not necessary to
+explicitly declare `nil` values for last arguments.
 
 ```
-> p2 = bind(math.pow, nil, 2)
-> print( p2(4) )
+> power2 = bind(math.pow, 2)
+> print( power2(10) )
+1024
+> quad = bind(math.pow, nil, 2)
+> print( quad(4) )
 16
 ```
 
