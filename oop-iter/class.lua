@@ -156,8 +156,13 @@ end
 -- @param key - A Lua string with the name you want to consult.
 -- @return value - The Lua value associated to the given key name.
 function class.consult(class_table, key)
-  return assert(has_class_instance_index_metamethod(class_table),
-                "The given object is not a class")[key]
+  local index = has_class_instance_index_metamethod(class_table)
+  assert(index, "The given object is not a class")
+  if type(index) == "function" then
+    return index(nil,key)
+  else
+    return index[key]
+  end
 end
 
 -- Returns the value associated with the given key at the given class_table
@@ -193,8 +198,11 @@ end
 -- @param key - A Lua key used as index.
 -- @param value - A Lua value which will be stored at the given key.
 function class.extend(class_table, key, value)
-  assert(has_class_instance_index_metamethod(class_table),
-         "The given 1st parameter is not a class")[key] = value
+  local index = has_class_instance_index_metamethod(class_table)
+  assert(index, "The given 1st parameter is not a class")
+  assert(type(index) ~= "function",
+         "Unable to extend a class with non-table __index")
+  index[key] = value
 end
 
 -- Extends the given class table with the addition of a new key = value pair
@@ -275,7 +283,7 @@ local function wrapper(obj,wrapper)
 end
 
 -- Creates a class table with a given class_name. It receives an optional parent
--- class to implement simple inheritance. It returns the class table; another
+-- class to implement simple heritance. It returns the class table; another
 -- table which will contain the methods of the object. Constructor and
 -- destructor methods will be declared into the class table as
 -- class_name:constructor(...) and class_name:destructor(). Additionally, a
