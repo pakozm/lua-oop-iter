@@ -201,8 +201,8 @@ function class.extend(class_table, key, value)
   local index = has_class_instance_index_metamethod(class_table)
   assert(index, "The given 1st parameter is not a class")
   if type(index) == "function" then
-    index = class_table.meta_instance.index_table[key]
-    assert(index, "Needs a index_table field")
+    index = class_table.meta_instance.index_table
+    assert(index, "Needs an index_table field")
   end
   index[key] = value
 end
