@@ -243,6 +243,28 @@ function class.is_class(t)
   return not not has_class_instance_index_metamethod(t)
 end
 
+-- Changes the __index table by a given function, in case the function
+-- returns "nil", the key would be searched at the old index field
+function class.declare_functional_index(cls, func)
+  assert(class.is_class(cls), "Needs a class as first argument")
+  assert(type(func) == "function", "Needs a function as second argument")
+  local old_index = cls.meta_instance.__index
+  if type(old_index) ~= "function" then
+    cls.meta_instance.index_table = old_index
+  end
+  if type(old_index) ~= "function" then
+    cls.meta_instance.__index = function(self,key)
+      local v = func(self,key)
+      return v~=nil and v or old_index[key]
+    end
+  else
+    cls.meta_instance.__index = function(self,key)
+      local v = func(self,key)
+      return v~=nil and v or old_index(self,key)
+    end
+  end
+end
+
 -- TODO: reimplement this function
 --
 -- makes a wrapper around an object, delegating the function calls to the given
