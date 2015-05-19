@@ -31,7 +31,7 @@
 -----------------------------
 local class = {
   _NAME = "class",
-  _VERSION = "0.2",
+  _VERSION = "0.4",
 }
 
 -- a list of class tables declared using class function
@@ -118,7 +118,8 @@ function class.is_a(object_instance, base_class_table)
   assert(has_metainstance(base_class_table),
          "Needs a class table as 2nd parameter")
   local id = (base_class_table.meta_instance or {}).id
-  return object_instance["is_" .. id] ~= nil
+  local ok,result = pcall(function() return object_instance["is_" .. id] ~= nil end)
+  return ok and result
 end
 
 -- Returns the super class table of a given derived class table. Throws an error

@@ -25,6 +25,99 @@ path directories, you can do:
 10
 ```
 
+Basic functions
+---------------
+
+Besides classes and iterator objects, this module incorporates basic but
+useful functional extensions.
+
+### Bind function
+
+`function = oopiter.bind(func, v1, v2, ..., vn)`
+
+Allow to bind any Lua function arguments to constant values, as long as the
+function receives positional arguments. Bind function receives a function as
+first argument and a variadic list with `n` arguments, being possible the later
+list to contain as may `nil` values as necessary. It is not necessary to
+explicitly declare `nil` values for last arguments.
+
+```
+> power2 = bind(math.pow, 2)
+> print( power2(10) )
+1024
+> quad = bind(math.pow, nil, 2)
+> print( quad(4) )
+16
+```
+
+### Addition function
+
+`boolean = oopiter.add(a,b)`
+
+### Substraction function
+
+`boolean = oopiter.sub(a,b)`
+
+### Multiplication function
+
+`boolean = oopiter.mul(a,b)`
+
+### Division function
+
+`boolean = oopiter.div(a,b)`
+
+### Log addition
+
+`number = oopiter.logadd(a,b)`
+
+Computes the log addition operation.
+
+### Clamp function
+
+`number = oopiter.clamp(value, lower, upper)`
+
+Clamps the given value to be in the given range `[lower,upper]`.
+
+### Sign function
+
+`number = oopiter.sign(a)`
+
+Returns `1`, `0` or `-1` depending in the sign of `a`.
+
+### Not function
+
+`boolean = oopiter.lnot(a)`
+
+### Or function
+
+`boolean = oopiter.lor(a,b)`
+
+### And function
+
+`boolean = oopiter.land(a,b)`
+
+### Greater or equal function
+
+`boolean = oopiter.ge(a,b)`
+
+### Greater than function
+
+`boolean = oopiter.gt(a,b)`
+
+### Less or equal function
+
+`boolean = oopiter.le(a,b)`
+
+### Less than function
+
+`boolean = oopiter.lt(a,b)`
+
+### Equals function
+
+`boolean = oopiter.eq(a,b)`
+
+
+
 Class module
 ------------
 
