@@ -140,7 +140,7 @@ end
 
 local oopiter = {
   _NAME = "lua-oop-iter",
-  _VERSION = "0.3",
+  _VERSION = "0.4",
   class = class,
   iterator = iterator,
   -- useful functions
