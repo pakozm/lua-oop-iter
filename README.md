@@ -50,6 +50,30 @@ explicitly declare `nil` values for last arguments.
 16
 ```
 
+### Lambda function
+
+`function = oopiter.lambda'|args|code'`
+
+Declares a lambda function (similar to Python, and similar to Steven's Penlight
+library). It needs an arguments section `|args|` which can be any comma
+separated list of arguments, and a code section `code` which is any valid Lua
+expression. Only single-expression functions can be built in this way. In case
+you need more complex functions, declare them as usually in Lua.
+
+```
+> add = lambda'|x,y| x+y'
+> print( add(2,3) )
+5
+```
+
+This function uses memorization to avoid multiple generation of the same
+function when it is used inside a loop. If you need to clear the memory, it
+can be done by doing:
+
+```
+> lambda.clear()
+```
+
 ### Addition function
 
 `boolean = oopiter.add(a,b)`

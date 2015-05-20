@@ -138,6 +138,27 @@ local function sign(v)
   return (v>0 and 1) or (v<0 and -1) or 0
 end
 
+-- inspired by Penlight string_lambda:
+-- http://stevedonovan.github.io/Penlight/api/libraries/pl.utils.html#string_lambda
+local lambda
+do
+  local memory = {}
+  lambda = setmetatable({ clear = function() memory = {} end, },
+    {
+      __call = function(self,fstr)
+        local fun = memory[fstr]
+        if not fun then
+          local args,code = fstr:match("^%s*|(.+)|(.+)$")
+          assert(args and code, "Needs args and code sections, e.g., |args|code")
+          local fun_src = ("return function(%s) return %s end"):format(args,code)
+          fun = assert(loadstring(fun_src))()
+          memory[fstr] = fun
+        end
+        return fun      
+      end,
+                       })
+end
+
 local oopiter = {
   _NAME = "lua-oop-iter",
   _VERSION = "0.4",
@@ -160,6 +181,7 @@ local oopiter = {
   div = div,
   clamp = clamp,
   sign = sign,
+  lambda = lambda,
 }
 
 return oopiter
